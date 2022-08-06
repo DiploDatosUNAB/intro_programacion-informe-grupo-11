@@ -1,6 +1,6 @@
 ---
-title: "titulo"
-author: "nombres"
+title: "TP1grupo11"
+author: "Valeria Sosa"
 output: html_document
 ---
 
@@ -8,11 +8,16 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Cargar los paquetes necesarios acá
+library(readr)
+library(dplyr)
+library(ggplot2)
 ```
 
 
 ## Introducción
-
+El Registro Mi Pyme es voluntario, el mismo permite obtener a los contribuyentes un Certificado Pyme que los caracteriza como Micro, Pequeña o Mediana Empresa segun los parametros establecidos por AFIP y a su vez acceder a determinados beneficios. Para poder obtener el certificado es necesario contar con las presentaciones impositivas de los ultimos tres ejercicios al dia.
+Los datos fueron publicados por el Minsiterio de Desarrollo Productivo y su actualizacion es trimestral. El link de acceso a los datos es el siguiente: https://datos.produccion.gob.ar/dataset/registro-mipyme
+El registro utilizado es el correspondiente al 09-05-2022
 
 
 ## Exploración de los datos
@@ -20,6 +25,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 # Código para cargar o leer los datos
+registro_mipyme <- read_csv("datos/registro_mipyme_09-05-2022.csv")
+
 ```
 
 
