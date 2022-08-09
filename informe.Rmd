@@ -15,29 +15,84 @@ library(ggplot2)
 
 
 ## Introducción
-El Registro Mi Pyme es voluntario, el mismo permite obtener a los contribuyentes un Certificado Pyme que los caracteriza como Micro, Pequeña o Mediana Empresa segun los parametros establecidos por AFIP y a su vez acceder a determinados beneficios. Para poder obtener el certificado es necesario contar con las presentaciones impositivas de los ultimos tres ejercicios al dia.
+El Registro Mi Pyme es voluntario, el mismo permite obtener a los contribuyentes un Certificado Pyme que los caracteriza como Micro, Pequeña o Mediana Empresa (tramo 1 o tramo 2) segun los parametros establecidos por AFIP y a su vez acceder a determinados beneficios. Para poder obtener el certificado es necesario contar con las presentaciones impositivas de los ultimos tres ejercicios al dia.
 Los datos fueron publicados por el Minsiterio de Desarrollo Productivo y su actualizacion es trimestral. El link de acceso a los datos es el siguiente: https://datos.produccion.gob.ar/dataset/registro-mipyme
 El registro utilizado es el correspondiente al 09-05-2022
-
+De forma adicional se agrega la descripcion del Nomenclador de AFIP para los codigos de la variable "CLAE6", el archivo se descargo del siguiente sitio:
+https://serviciosweb.afip.gob.ar/genericos/nomencladorActividades/index.aspx
 
 ## Exploración de los datos
-
 
 ```{r}
 # Código para cargar o leer los datos
 registro_mipyme <- read_csv("datos/registro_mipyme_09-05-2022.csv")
+```
+```{r}
+CLAE_NOMENCLADOR_AFIP <- read_delim("datos/ACTIVIDADES_ECONOMICAS_F883.txt", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
 
 ```
-
 
 
 ```{r}
-# Cödigo de R acá 
-# Agregá más bloques según sea necesario
+# Cödigo de R para ver la estructura de los datos
+# Podemos observar que cinco variables son numericas, dos variables de tipo fecha y cuatro de tipo caracter. 
+str(registro_mipyme)
+str(CLAE_NOMENCLADOR_AFIP)
 ```
 
 
+```{r}
+# Las variables de texto conviene convertirlas a factores para poder hacer un analisis de las mismas.
+registro_mipyme$Regimen_Tributario <-as.factor (registro_mipyme$Regimen_Tributario)
+registro_mipyme$Categoria <-as.factor (registro_mipyme$Categoria)
+registro_mipyme$Sector <-as.factor (registro_mipyme$Sector)
+registro_mipyme$Provincia <-as.factor (registro_mipyme$Provincia)
+```
+
+```{r}
+#hacemos lo mismo con el archivo "CLAE_NOMENCLADOR
+CLAE_NOMENCLADOR_AFIP$COD_ACTIVIDAD_F883<-as.factor(CLAE_NOMENCLADOR_AFIP$COD_ACTIVIDAD_F883)
+CLAE_NOMENCLADOR_AFIP$DESC_ACTIVIDAD_F883<-as.factor(CLAE_NOMENCLADOR_AFIP$DESC_ACTIVIDAD_F883)
+CLAE_NOMENCLADOR_AFIP$DESCL_ACTIVIDA_F883<-as.factor(CLAE_NOMENCLADOR_AFIP$DESCL_ACTIVIDA_F883)
+```
+
+```{r}
+# Analizamos ahora el numero de ocurrencias de las variables Regimen Tributario, Categoria, Sector, Provincia y certificado vigente
+table(registro_mipyme$Regimen_Tributario)
+table (registro_mipyme$Categoria)
+table (registro_mipyme$Sector)
+table (registro_mipyme$Provincia)
+table (registro_mipyme$Vigente)
+```
+
+
+```{r}
+#Podemos convertir esas frecuencias en porcentaje
+prop.table (table(registro_mipyme$Regimen_Tributario))
+prop.table (table (registro_mipyme$Categoria))
+prop.table (table (registro_mipyme$Sector))
+prop.table (table (registro_mipyme$Provincia))
+
+```
+
+```{r}
+# Ahora vamos a analizar las Categorias de Pymes por Provincia
+
+table (registro_mipyme$Categoria,registro_mipyme$Provincia)
+```
+
+```{r}
+# Ahora vamos a analizar las Categorias de Pymes por Sector
+
+table (registro_mipyme$Categoria,registro_mipyme$Sector)
+```
+```{r}
+#A continuacion vamos a analizar las Categorias de Pymes por Regimen Tributario
+
+table (registro_mipyme$Categoria,registro_mipyme$Regimen_Tributario)
+```
+#falta calcular algunas medidas y graficos? 
 
 ## Hipótesis
-
-
+#En un regimen inflacionario como el actual -con proyecciones por arriba del 70% - las micropymes podrian ver reducidos sus beneficios al pasar a ser pequeñas.
