@@ -20,6 +20,7 @@ Los datos fueron publicados por el Minsiterio de Desarrollo Productivo y su actu
 El registro utilizado es el correspondiente al 09-05-2022
 De forma adicional se agrega la descripcion del Nomenclador de AFIP para los codigos de la variable "CLAE6", el archivo se descargo del siguiente sitio:
 https://serviciosweb.afip.gob.ar/genericos/nomencladorActividades/index.aspx
+Tambien se utilizo el dataset sobre puestos de trabajo en el sector privado por CLAE6 obtenido del link:http://datos.produccion.gob.ar/dataset/15211f62-04dc-42ed-acdd-ff2bbcaf4779/archivo/3effd219-24e9-4d8a-bb38-0636e11290b6
 
 ## Exploración de los datos
 
@@ -33,10 +34,15 @@ CLAE_NOMENCLADOR_AFIP <- read_delim("datos/ACTIVIDADES_ECONOMICAS_F883.txt",
 
 ```
 ```{r}
+puestos_privados_mensual <- read_csv("datos/puestos_privados_mensual_por_clae6.csv")
+```
+
+```{r}
 # Cödigo de R para ver la estructura de los datos
 # Podemos observar que cinco variables son numericas, dos variables de tipo fecha y cuatro de tipo caracter. 
 str(registro_mipyme)
 str(CLAE_NOMENCLADOR_AFIP)
+str(puestos_privados_mensual)
 ```
 ```{r}
 # Las variables de texto conviene convertirlas a factores para poder hacer un analisis de las mismas.
@@ -99,20 +105,41 @@ table(PymesBsAs$Categoria,PymesBsAs$Vigente)
 summary(CLAE_NOMENCLADOR_AFIP$COD_ACTIVIDAD_F883)
 summary(PymesBsAs$CLAE6)
 summary(registro_mipyme$CLAE6)
+summary (puestos_privados_mensual$clae6)
 ```
 ```{r}
 #Vamos a ver cual es el valor que mas se repite en el caso de las actividades en Buenos Aires
-CLAE <- c(PymesBsAs$CLAE6)
-mode <- function(CLAE) {
+CLAE_BSAS <- c(PymesBsAs$CLAE6)
+mode <- function(CLAE_BSAS) {
    return(as.numeric(names(which.max(table(PymesBsAs$CLAE6)))))
 }
-mode (CLAE)
+mode(CLAE_BSAS)
+#Y en el Registro Mi Pyme
+CLAE_PYMES <- c(registro_mipyme$CLAE6)
+mode <- function(CLAE_PYMES) {
+   return(as.numeric(names(which.max(table(registro_mipyme$CLAE6)))))
+}
+mode(CLAE_PYMES)
+#Respecto a la tabla de puestos privados mensual
+CLAE_PUESTOS <- c(puestos_privados_mensual$clae6)
+mode <- function(CLAE_PUESTOS) {
+   return(as.numeric(names(which.max(table(puestos_privados_mensual$clae6)))))
+}
+mode (CLAE_PUESTOS)
 ```
 ```{r}
 #Vemos cual es la descripcion de esa actividad
 filter(CLAE_NOMENCLADOR_AFIP,COD_ACTIVIDAD_F883== 960990)
 ```
 
+
+```{r}
+#Para el codigo evaluado en la tabla de puestos mensuales
+filter(CLAE_NOMENCLADOR_AFIP,COD_ACTIVIDAD_F883== 011111)
+```
+
 ## Hipótesis
-#1-Existe una relacion entre la categoria de la pyme y el regimen tributario
-#2-
+#1-Hay una relacion entre los puestos de trabajo y los sectores de las pymes.
+#2-Existe una relacion entre la categoria de la pyme y el regimen tributario
+#3-Las actividades que registran las pymes son independientes de la provincia donde se instalan.
+
