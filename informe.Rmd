@@ -32,15 +32,12 @@ CLAE_NOMENCLADOR_AFIP <- read_delim("datos/ACTIVIDADES_ECONOMICAS_F883.txt",
     delim = ";", escape_double = FALSE, trim_ws = TRUE)
 
 ```
-
-
 ```{r}
 # Cödigo de R para ver la estructura de los datos
 # Podemos observar que cinco variables son numericas, dos variables de tipo fecha y cuatro de tipo caracter. 
 str(registro_mipyme)
 str(CLAE_NOMENCLADOR_AFIP)
 ```
-
 ```{r}
 # Las variables de texto conviene convertirlas a factores para poder hacer un analisis de las mismas.
 registro_mipyme$Regimen_Tributario <-as.factor (registro_mipyme$Regimen_Tributario)
@@ -50,10 +47,11 @@ registro_mipyme$Provincia <-as.factor (registro_mipyme$Provincia)
 ```
 
 ```{r}
-#hacemos lo mismo con el archivo "CLAE_NOMENCLADOR" y convertimos a numero el Codigo de Actividad
+#hacemos lo mismo con el archivo "CLAE_NOMENCLADOR" y convertimos a numero el Codigo de Actividad y ...4
 CLAE_NOMENCLADOR_AFIP$COD_ACTIVIDAD_F883<-as.numeric(CLAE_NOMENCLADOR_AFIP$COD_ACTIVIDAD_F883)
 CLAE_NOMENCLADOR_AFIP$DESC_ACTIVIDAD_F883<-as.factor(CLAE_NOMENCLADOR_AFIP$DESC_ACTIVIDAD_F883)
 CLAE_NOMENCLADOR_AFIP$DESCL_ACTIVIDA_F883<-as.factor(CLAE_NOMENCLADOR_AFIP$DESCL_ACTIVIDA_F883)
+CLAE_NOMENCLADOR_AFIP$...4<-as.numeric(CLAE_NOMENCLADOR_AFIP$...4)
 ```
 
 ```{r}
@@ -64,8 +62,6 @@ table (registro_mipyme$Sector)
 table (registro_mipyme$Provincia)
 table (registro_mipyme$Vigente)
 ```
-
-
 ```{r}
 #Podemos convertir esas frecuencias en porcentaje
 prop.table (table(registro_mipyme$Regimen_Tributario))*100
@@ -74,21 +70,18 @@ prop.table (table (registro_mipyme$Sector))*100
 prop.table (table (registro_mipyme$Provincia))*100
 
 ```
-
 ```{r}
 # Ahora vamos a analizar las Categorias de Pymes por Provincia
-
 table (registro_mipyme$Categoria,registro_mipyme$Provincia)
 ```
 
 ```{r}
-# Ahora vamos a analizar las Categorias de Pymes por Sector
+# Observamoslas Categorias de Pymes por Sector
 
 table (registro_mipyme$Categoria,registro_mipyme$Sector)
 ```
 ```{r}
-#A continuacion vamos a analizar las Categorias de Pymes por Regimen Tributario
-
+# Ahora vemos las Categorias de Pymes por Regimen Tributario
 table (registro_mipyme$Categoria,registro_mipyme$Regimen_Tributario)
 ```
 ```{r}
@@ -96,8 +89,10 @@ table (registro_mipyme$Categoria,registro_mipyme$Regimen_Tributario)
 PymesBsAs <- filter(registro_mipyme,Provincia== "BUENOS AIRES")
 table(PymesBsAs$Categoria,PymesBsAs$Regimen_Tributario)
 table(PymesBsAs$Categoria,PymesBsAs$Sector)
+table (PymesBsAs$Regimen_Tributario,PymesBsAs$Sector)
+table (PymesBsAs$Regimen_Tributario, PymesBsAs$Vigente)
+table(PymesBsAs$Categoria,PymesBsAs$Vigente)
 ```
-
 
 ```{r}
 # Calculamos algunas medidas para las siguientes muestras. Se puede observar que en el caso del nomenclador la muestra no esta sesgada, en cambio el Registro Mi Pyme y el analisis para Bs As se encuentra sesgada a la derecha, es decir que las actividades se concentran hacia los codigos de la derecha.
@@ -105,14 +100,19 @@ summary(CLAE_NOMENCLADOR_AFIP$COD_ACTIVIDAD_F883)
 summary(PymesBsAs$CLAE6)
 summary(registro_mipyme$CLAE6)
 ```
-
-
 ```{r}
-#Calculamos algunas medidas
-la moda 
+#Vamos a ver cual es el valor que mas se repite en el caso de las actividades en Buenos Aires
+CLAE <- c(PymesBsAs$CLAE6)
+mode <- function(CLAE) {
+   return(as.numeric(names(which.max(table(PymesBsAs$CLAE6)))))
+}
+mode (CLAE)
+```
+```{r}
+#Vemos cual es la descripcion de esa actividad
+filter(CLAE_NOMENCLADOR_AFIP,COD_ACTIVIDAD_F883== 960990)
 ```
 
-
-
 ## Hipótesis
-#En un regimen inflacionario como el actual -con proyecciones por arriba del 70% - las micropymes podrian ver reducidos sus beneficios al pasar a ser pequeñas.
+#1-Existe una relacion entre la categoria de la pyme y el regimen tributario
+#2-
