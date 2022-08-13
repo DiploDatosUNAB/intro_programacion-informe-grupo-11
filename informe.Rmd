@@ -4,15 +4,13 @@ author: "Valeria Sosa"
 output: html_document
 ---
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# Cargar los paquetes necesarios acá
+# Cargamos los paquetes que vamos a utilizar
 library(readr)
 library(dplyr)
 library(ggplot2)
 ```
-
 
 ## Introducción
 El Registro Mi Pyme es voluntario, el mismo permite obtener a los contribuyentes un Certificado Pyme que los caracteriza como Micro, Pequeña o Mediana Empresa (tramo 1 o tramo 2) segun los parametros establecidos por AFIP y a su vez acceder a determinados beneficios. Para poder obtener el certificado es necesario contar con las presentaciones impositivas de los ultimos tres ejercicios al dia.
@@ -23,9 +21,9 @@ https://serviciosweb.afip.gob.ar/genericos/nomencladorActividades/index.aspx
 Tambien se utilizo el dataset sobre puestos de trabajo en el sector privado por CLAE6 obtenido del link:http://datos.produccion.gob.ar/dataset/15211f62-04dc-42ed-acdd-ff2bbcaf4779/archivo/3effd219-24e9-4d8a-bb38-0636e11290b6
 
 ## Exploración de los datos
-
 ```{r}
-# Cargamos los datos del Registro Pyme y el Nomenclador de AFIP
+# Cargamos los datos del Registro Pyme, el Nomenclador de AFIP y el dataset de puestos de trabajo
+
 registro_mipyme <- read_csv("datos/registro_mipyme_09-05-2022.csv")
 ```
 ```{r}
@@ -36,10 +34,9 @@ CLAE_NOMENCLADOR_AFIP <- read_delim("datos/ACTIVIDADES_ECONOMICAS_F883.txt",
 ```{r}
 puestos_privados_mensual <- read_csv("datos/puestos_privados_mensual_por_clae6.csv")
 ```
-
 ```{r}
 # Cödigo de R para ver la estructura de los datos
-# Podemos observar que cinco variables son numericas, dos variables de tipo fecha y cuatro de tipo caracter. 
+# Podemos observar que variables son numericoas y cuales de tipo caracter, fecha u otras.
 str(registro_mipyme)
 str(CLAE_NOMENCLADOR_AFIP)
 str(puestos_privados_mensual)
@@ -83,7 +80,6 @@ table (registro_mipyme$Categoria,registro_mipyme$Provincia)
 
 ```{r}
 # Observamoslas Categorias de Pymes por Sector
-
 table (registro_mipyme$Categoria,registro_mipyme$Sector)
 ```
 ```{r}
@@ -131,13 +127,10 @@ mode (CLAE_PUESTOS)
 #Vemos cual es la descripcion de esa actividad
 filter(CLAE_NOMENCLADOR_AFIP,COD_ACTIVIDAD_F883== 960990)
 ```
-
-
 ```{r}
 #Para el codigo evaluado en la tabla de puestos mensuales
 filter(CLAE_NOMENCLADOR_AFIP,COD_ACTIVIDAD_F883== 011111)
 ```
-
 ## Hipótesis
 #1-Hay una relacion entre los puestos de trabajo y los sectores de las pymes.
 #2-Existe una relacion entre la categoria de la pyme y el regimen tributario
