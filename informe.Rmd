@@ -1,36 +1,138 @@
 ---
-title: "titulo"
-author: "nombres"
+title: "TP1grupo11"
+author: "Valeria Sosa"
 output: html_document
 ---
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# Cargar los paquetes necesarios acá
+# Cargamos los paquetes que vamos a utilizar
+library(readr)
+library(dplyr)
+library(ggplot2)
 ```
-
 
 ## Introducción
-
-
+El Registro Mi Pyme es voluntario, el mismo permite obtener a los contribuyentes un Certificado Pyme que los caracteriza como Micro, Pequeña o Mediana Empresa (tramo 1 o tramo 2) segun los parametros establecidos por AFIP y a su vez acceder a determinados beneficios. Para poder obtener el certificado es necesario contar con las presentaciones impositivas de los ultimos tres ejercicios al dia.
+Los datos fueron publicados por el Minsiterio de Desarrollo Productivo y su actualizacion es trimestral. El link de acceso a los datos es el siguiente: https://datos.produccion.gob.ar/dataset/registro-mipyme
+El registro utilizado es el correspondiente al 09-05-2022
+De forma adicional se agrega la descripcion del Nomenclador de AFIP para los codigos de la variable "CLAE6", el archivo se descargo del siguiente sitio:
+https://serviciosweb.afip.gob.ar/genericos/nomencladorActividades/index.aspx
+Tambien se utilizo el dataset sobre puestos de trabajo en el sector privado por CLAE6 obtenido del link:http://datos.produccion.gob.ar/dataset/15211f62-04dc-42ed-acdd-ff2bbcaf4779/archivo/3effd219-24e9-4d8a-bb38-0636e11290b6
 
 ## Exploración de los datos
-
-
 ```{r}
-# Código para cargar o leer los datos
+# Cargamos los datos del Registro Pyme, el Nomenclador de AFIP y el dataset de puestos de trabajo
+
+registro_mipyme <- read_csv("datos/registro_mipyme_09-05-2022.csv")
+```
+```{r}
+CLAE_NOMENCLADOR_AFIP <- read_delim("datos/ACTIVIDADES_ECONOMICAS_F883.txt", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+
+```
+```{r}
+puestos_privados_mensual <- read_csv("datos/puestos_privados_mensual_por_clae6.csv")
+```
+```{r}
+# Cödigo de R para ver la estructura de los datos
+# Podemos observar que variables son numericoas y cuales de tipo caracter, fecha u otras.
+str(registro_mipyme)
+str(CLAE_NOMENCLADOR_AFIP)
+str(puestos_privados_mensual)
+```
+```{r}
+# Las variables de texto conviene convertirlas a factores para poder hacer un analisis de las mismas.
+registro_mipyme$Regimen_Tributario <-as.factor (registro_mipyme$Regimen_Tributario)
+registro_mipyme$Categoria <-as.factor (registro_mipyme$Categoria)
+registro_mipyme$Sector <-as.factor (registro_mipyme$Sector)
+registro_mipyme$Provincia <-as.factor (registro_mipyme$Provincia)
 ```
 
-
-
 ```{r}
-# Cödigo de R acá 
-# Agregá más bloques según sea necesario
+#hacemos lo mismo con el archivo "CLAE_NOMENCLADOR" y convertimos a numero el Codigo de Actividad y ...4
+CLAE_NOMENCLADOR_AFIP$COD_ACTIVIDAD_F883<-as.numeric(CLAE_NOMENCLADOR_AFIP$COD_ACTIVIDAD_F883)
+CLAE_NOMENCLADOR_AFIP$DESC_ACTIVIDAD_F883<-as.factor(CLAE_NOMENCLADOR_AFIP$DESC_ACTIVIDAD_F883)
+CLAE_NOMENCLADOR_AFIP$DESCL_ACTIVIDA_F883<-as.factor(CLAE_NOMENCLADOR_AFIP$DESCL_ACTIVIDA_F883)
+CLAE_NOMENCLADOR_AFIP$...4<-as.numeric(CLAE_NOMENCLADOR_AFIP$...4)
 ```
 
+```{r}
+# Analizamos ahora el numero de ocurrencias de las variables Regimen Tributario, Categoria, Sector, Provincia y certificado vigente, podemos utilizar la funcion table o summary.
+summary(registro_mipyme$Regimen_Tributario)
+summary (registro_mipyme$Categoria)
+table (registro_mipyme$Sector)
+table (registro_mipyme$Provincia)
+table (registro_mipyme$Vigente)
+```
+```{r}
+#Podemos convertir esas frecuencias en porcentaje
+prop.table (table(registro_mipyme$Regimen_Tributario))*100
+prop.table (table (registro_mipyme$Categoria))*100
+prop.table (table (registro_mipyme$Sector))*100
+prop.table (table (registro_mipyme$Provincia))*100
 
+```
+```{r}
+# Ahora vamos a analizar las Categorias de Pymes por Provincia
+table (registro_mipyme$Categoria,registro_mipyme$Provincia)
+```
 
+```{r}
+# Observamoslas Categorias de Pymes por Sector
+table (registro_mipyme$Categoria,registro_mipyme$Sector)
+```
+```{r}
+# Ahora vemos las Categorias de Pymes por Regimen Tributario
+table (registro_mipyme$Categoria,registro_mipyme$Regimen_Tributario)
+```
+```{r}
+#Ahora vamos a analizar algunas variables para la provincia de Buenos Aires
+PymesBsAs <- filter(registro_mipyme,Provincia== "BUENOS AIRES")
+table(PymesBsAs$Categoria,PymesBsAs$Regimen_Tributario)
+table(PymesBsAs$Categoria,PymesBsAs$Sector)
+table (PymesBsAs$Regimen_Tributario,PymesBsAs$Sector)
+table (PymesBsAs$Regimen_Tributario, PymesBsAs$Vigente)
+table(PymesBsAs$Categoria,PymesBsAs$Vigente)
+```
+
+```{r}
+# Calculamos algunas medidas para las siguientes muestras. Se puede observar que en el caso del nomenclador la muestra no esta sesgada, en cambio el Registro Mi Pyme y el analisis para Bs As se encuentra sesgada a la derecha, es decir que las actividades se concentran hacia los codigos de la derecha.
+summary(CLAE_NOMENCLADOR_AFIP$COD_ACTIVIDAD_F883)
+summary(PymesBsAs$CLAE6)
+summary(registro_mipyme$CLAE6)
+summary (puestos_privados_mensual$clae6)
+```
+```{r}
+#Vamos a ver cual es el valor que mas se repite en el caso de las actividades en Buenos Aires
+CLAE_BSAS <- c(PymesBsAs$CLAE6)
+mode <- function(CLAE_BSAS) {
+   return(as.numeric(names(which.max(table(PymesBsAs$CLAE6)))))
+}
+mode(CLAE_BSAS)
+#Y en el Registro Mi Pyme
+CLAE_PYMES <- c(registro_mipyme$CLAE6)
+mode <- function(CLAE_PYMES) {
+   return(as.numeric(names(which.max(table(registro_mipyme$CLAE6)))))
+}
+mode(CLAE_PYMES)
+#Respecto a la tabla de puestos privados mensual
+CLAE_PUESTOS <- c(puestos_privados_mensual$clae6)
+mode <- function(CLAE_PUESTOS) {
+   return(as.numeric(names(which.max(table(puestos_privados_mensual$clae6)))))
+}
+mode (CLAE_PUESTOS)
+```
+```{r}
+#Vemos cual es la descripcion de esa actividad
+filter(CLAE_NOMENCLADOR_AFIP,COD_ACTIVIDAD_F883== 960990)
+```
+```{r}
+#Para el codigo evaluado en la tabla de puestos mensuales
+filter(CLAE_NOMENCLADOR_AFIP,COD_ACTIVIDAD_F883== 011111)
+```
 ## Hipótesis
-
+#1-Hay una relacion entre los puestos de trabajo y los sectores de las pymes.
+#2-Existe una relacion entre la categoria de la pyme y el regimen tributario
+#3-Las actividades que registran las pymes son independientes de la provincia donde se instalan.
 
